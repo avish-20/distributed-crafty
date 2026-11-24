@@ -1,0 +1,36 @@
+package com.avish.distributed_craftly.common_lib.security;
+
+import feign.RequestInterceptor;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.servlet.HandlerExceptionResolver;
+
+@AutoConfiguration
+public class SharedSecurityAutoConfiguration {
+    @Bean
+    @ConditionalOnMissingBean
+    public AuthUtil authUtil() {
+        return new AuthUtil();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public JwtAuthFilter jwtAuthFilter(AuthUtil authUtil, HandlerExceptionResolver handlerExceptionResolver) {
+        return new JwtAuthFilter(authUtil, handlerExceptionResolver);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public RequestInterceptor requestInterceptor() {
+        return requestTemplate -> {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            if (authentication != null && authentication.getCredentials() instanceof String token) {
+                requestTemplate.header("Authorization", "Bearer " + token);
+            }
+        };
+    }
+}

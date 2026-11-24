@@ -1,0 +1,28 @@
+# k8s/infra/namespace.yaml
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: craftly-core
+
+---
+# to create a separate ns for previews
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: craftly-previews
+
+---
+# configmap for shared config values across services
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: craftly-shared-config
+  namespace: craftly-core
+data:
+  PREVIEW_DOMAIN: "localhost"
+  PREVIEW_NAMESPACE: "craftly-previews"
+  PROXY_PORT: "8090"
+  APP_FRONTEND_URL: "http://localhost:5173"
